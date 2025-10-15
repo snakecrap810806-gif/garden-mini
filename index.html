@@ -3,155 +3,231 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<title>폐루프 치유 코스 · 초간단 미니</title>
+<title>폐루프 치유 코스 · 다코스 미니(토글 포함)</title>
 <style>
   :root{--ink:#0f172a;--muted:#64748b;--pri:#2563eb;--panel:#fff}
   *{box-sizing:border-box} html,body{margin:0;background:transparent;font-family:system-ui,"Noto Sans KR",sans-serif;color:var(--ink)}
-  .wrap{max-width:420px;margin:0 auto;padding:12px}
+  /* 토글 버튼 */
+  .toggle{position:fixed;right:14px;bottom:14px;z-index:10001;background:var(--pri);color:#fff;
+          border:0;border-radius:999px;padding:10px 16px;font-weight:900;cursor:pointer;
+          box-shadow:0 8px 20px rgba(37,99,235,.35);}
+  .toggle.off{opacity:.85;background:#3b82f6}
+  .toggle:focus{outline:3px solid #bfdbfe;outline-offset:2px}
+  /* 패널 */
+  .panel{position:relative;z-index:10000}
+  .wrap{max-width:440px;margin:0 auto;padding:12px}
   .card{background:var(--panel);border-radius:14px;box-shadow:0 6px 18px rgba(2,6,23,.10);padding:14px}
   .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
   .btn{background:var(--pri);color:#fff;border:0;border-radius:10px;padding:10px 12px;font-weight:800;cursor:pointer}
   .ghost{background:#eef2ff;color:#2b46e3}
-  .gauge{height:8px;border-radius:999px;background:#e5e7eb;overflow:hidden;margin:6px 0}
-  .bar{height:100%;width:0;background:linear-gradient(90deg,#22c55e,#16a34a)}
-  .pill{display:inline-block;font-size:11px;background:#eef2ff;border-radius:999px;padding:4px 8px;margin-right:6px}
   .muted{color:var(--muted);font-size:12px}
   label{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-top:6px;font-weight:700}
   .val{font-weight:900}
+  .grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:8px}
+  @media (min-width:420px){ .grid{grid-template-columns:1fr 1fr} }
+  .course{border:1px solid #e5e7eb;border-radius:12px;padding:10px}
+  .course h4{margin:0 0 4px 0;font-size:15px}
+  .pill{display:inline-block;font-size:11px;background:#eef2ff;border-radius:999px;padding:4px 8px;margin-right:6px;margin-top:4px}
+  .bar{height:6px;background:linear-gradient(90deg,#22c55e,#16a34a);width:0;border-radius:999px}
+  .gauge{height:6px;background:#e5e7eb;border-radius:999px;overflow:hidden}
+  .top3{margin-top:10px}
+  /* 접힘 상태 */
+  .collapsed .panel{display:none}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="card">
-    <div style="display:flex;align-items:center;gap:8px">
-      <span style="font-size:11px;color:#fff;background:#2563eb;border-radius:999px;padding:3px 8px">2025 서울국제정원박람회</span>
-      <h1 style="font-size:16px;margin:0">폐루프 치유 코스(미니)</h1>
-    </div>
-    <div class="muted">사전값 → 코스 시작 → 종료/리포트까지 한 번에.</div>
+<!-- 파란색 ON/OFF 토글 버튼 -->
+<button id="toggle" class="toggle" aria-pressed="true" title="미니맵 보이기/숨기기 (T)">
+  ON
+</button>
 
-    <!-- 사전 입력 -->
-    <label>현재 기분(VAS) <span class="val" id="moodVal">5</span>/10</label>
-    <input type="range" id="mood" min="0" max="10" value="5" style="width:100%">
-    <label>현재 스트레스(VAS) <span class="val" id="stressVal">5</span>/10</label>
-    <input type="range" id="stress" min="0" max="10" value="5" style="width:100%">
-
-    <div class="row" style="margin-top:6px">
-      <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="조용함" checked> 조용함</label>
-      <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="그늘/시원함"> 그늘/시원함</label>
-      <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="저속 보행"> 저속 보행</label>
-      <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="자연 소리"> 자연 소리</label>
-      <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="앉아서 휴식"> 앉아서 휴식</label>
-    </div>
-
-    <div class="row">
-      <button class="btn" id="recBtn">추천 받기</button>
-      <button class="btn ghost" id="quickBtn">빠른 시작</button>
-    </div>
-
-    <!-- 추천 결과 -->
-    <div id="out" style="display:none;margin-top:10px;border:1px solid #e5e7eb;border-radius:12px;padding:10px">
-      <h3 id="title" style="margin:0 0 6px 0;font-size:16px"></h3>
-      <div class="gauge"><div class="bar" id="bar"></div></div>
-      <div class="muted" id="score"></div>
-      <div id="desc" style="font-size:13px;margin:6px 0"></div>
-      <span class="pill" id="eta"></span><span class="pill" id="steps"></span>
-      <div class="row" style="margin-top:8px">
-        <button class="btn" id="startBtn">시작하기(메인 VR 이동)</button>
-        <button class="btn ghost" id="endBtn" title="체험 후 클릭">종료/리포트</button>
+<!-- 미니 패널 -->
+<div class="panel">
+  <div class="wrap">
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:11px;color:#fff;background:#2563eb;border-radius:999px;padding:3px 8px">2025 서울국제정원박람회</span>
+        <h1 style="font-size:16px;margin:0">폐루프 치유 코스(다양한 코스)</h1>
       </div>
-      <div id="status" class="muted" style="margin-top:6px;display:none"></div>
-    </div>
+      <div class="muted">사전값 → 코스 시작(메인 VR 이동) → 종료/리포트까지 한 번에.</div>
 
-    <form id="topForm" method="get" target="_top" style="display:none"></form>
+      <!-- 사전 입력 -->
+      <label>현재 기분(VAS) <span class="val" id="moodVal">5</span>/10</label>
+      <input type="range" id="mood" min="0" max="10" value="5" style="width:100%">
+      <label>현재 스트레스(VAS) <span class="val" id="stressVal">5</span>/10</label>
+      <input type="range" id="stress" min="0" max="10" value="5" style="width:100%">
+
+      <div class="row" style="margin-top:6px">
+        <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="조용함" checked> 조용함</label>
+        <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="그늘"> 그늘/시원함</label>
+        <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="저속 보행"> 저속 보행</label>
+        <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="자연 소리"> 자연 소리</label>
+        <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="앉아서 휴식"> 앉아서 휴식</label>
+        <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="햇살"> 햇살</label>
+        <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="수변"> 수변</label>
+        <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="전망"> 전망</label>
+      </div>
+
+      <div class="row">
+        <button class="btn" id="recBtn">추천 3개 보기</button>
+        <button class="btn ghost" id="allBtn">모든 코스 보기</button>
+      </div>
+
+      <!-- 추천 Top3 -->
+      <div id="top3" class="top3" style="display:none">
+        <h3 style="margin:6px 0 6px 0;font-size:15px">추천 코스 Top 3</h3>
+        <div id="topGrid" class="grid"></div>
+      </div>
+
+      <!-- 전체 코스 -->
+      <div id="all" style="display:none">
+        <h3 style="margin:10px 0 6px 0;font-size:15px">전체 코스</h3>
+        <div id="allGrid" class="grid"></div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <button class="btn ghost" id="endBtn" title="체험 후 클릭">종료/리포트</button>
+        <div id="status" class="muted" style="display:none"></div>
+      </div>
+
+      <form id="topForm" method="get" target="_top" style="display:none"></form>
+    </div>
   </div>
 </div>
 
 <script>
-/* ① 딥링크(그대로 사용 가능) */
-const DEEPLINKS = {
-  CALM_BREATH: "https://my.mpskin.com/tour/38ca3651j?play=1&sr=,-.01&ss=217",
-  SHADE_WALK:  "https://my.mpskin.com/tour/38ca3651j?play=1&sr=-3.12,.58&ss=226",
-  SOUND_FOREST:"https://my.mpskin.com/tour/38ca3651j?play=1&sr=-3.09,-.06&ss=179",
-  FOREST_MEDIT:"https://my.mpskin.com/tour/38ca3651j?play=1&sr=3.13,1.53&ss=148",
-  SUN_STRETCH: "https://my.mpskin.com/tour/38ca3651j?play=1&sr=-.03,-.67&ss=243"
-};
-/* ② 웹훅/카카오(나중에 준비되면 주소만 넣으세요) */
-const WEBHOOK_URL = ""; // 예: "https://script.google.com/macros/s/…/exec"
-const KAKAO_LINK  = ""; // 예: "https://pf.kakao.com/_your_channel"
+/* ======= ON/OFF 토글 ======= */
+const TOGGLE = document.getElementById('toggle');
+function setOpen(open){
+  document.body.classList.toggle('collapsed', !open);
+  TOGGLE.textContent = open ? 'ON' : 'OFF';
+  TOGGLE.classList.toggle('off', !open);
+  TOGGLE.setAttribute('aria-pressed', String(open));
+  try{ localStorage.setItem('mini_open', open?'1':'0'); }catch(e){}
+}
+// 초기 상태: ?open=0 또는 저장값 반영
+(function(){
+  const sp = new URLSearchParams(location.search);
+  const q = sp.get('open');
+  let open = true;
+  if(q==='0') open=false;
+  try{
+    const s = localStorage.getItem('mini_open');
+    if(s==='0') open=false;
+    if(s==='1') open=true;
+  }catch(e){}
+  setOpen(open);
+})();
+TOGGLE.addEventListener('click', ()=> setOpen(TOGGLE.textContent!=='ON'));
+window.addEventListener('keydown', (e)=>{ if(e.key.toLowerCase()==='t') setOpen(TOGGLE.textContent!=='ON'); });
 
-const ROUTES = [
-  { key:"CALM_BREATH", title:"고요한 호흡 코스 (10분)", eta:"약 10분", steps:"포인트 3곳", desc:"조용한 지점에서 4-4-6 호흡. 앉아서 휴식 위주.", prefer:{ "조용함":0.6, "앉아서 휴식":0.4 } },
-  { key:"SHADE_WALK",  title:"그늘 보행 코스 (15분)", eta:"약 15분", steps:"포인트 4곳", desc:"그늘 위주의 저속 보행. 메트로놈으로 속도 유지.", prefer:{ "그늘/시원함":0.5, "저속 보행":0.5 } },
-  { key:"SOUND_FOREST",title:"사운드스케이프 코스 (12분)", eta:"약 12분", steps:"포인트 3곳", desc:"자연 소리 집중 코스.", prefer:{ "자연 소리":0.7, "조용함":0.3 } },
-  { key:"FOREST_MEDIT",title:"숲 명상 코스 (8분)",   eta:"약 8분", steps:"포인트 3곳", desc:"그늘에서 호흡 관찰·신체 스캔.", prefer:{ "조용함":0.3 } },
-  { key:"SUN_STRETCH", title:"햇살 스트레칭 코스 (7분)", eta:"약 7분", steps:"포인트 3곳", desc:"따뜻한 지점 스트레칭.", prefer:{ "가벼운 스트레칭":0.7 } }
+/* ======= 원래 기능들 ======= */
+/* 딥링크(사용자 제공 12개) */
+const DL = [
+ "https://my.mpskin.com/tour/38ca3651j?play=1&sr=,-.01&ss=217",
+ "https://my.mpskin.com/tour/38ca3651j?play=1&sr=-3.12,.58&ss=226",
+ "https://my.mpskin.com/tour/38ca3651j?play=1&sr=-3.09,-.06&ss=179",
+ "https://my.mpskin.com/tour/38ca3651j?play=1&sr=3.13,1.53&ss=148",
+ "https://my.mpskin.com/tour/38ca3651j?play=1&sr=-.03,-.67&ss=243",
+ "https://my.mpskin.com/tour/38ca3651j?play=1&sr=-3.11,-1.03&ss=151",
+ "https://my.mpskin.com/tour/38ca3651j?play=1&sr=.09,-.47&ss=240",
+ "https://my.mpskin.com/tour/38ca3651j?play=1&sr=-.01,-.31&ss=123",
+ "https://my.mpskin.com/tour/38ca3651j?play=1&sr=.03,-.14&ss=105",
+ "https://my.mpskin.com/tour/38ca3651j?play=1&sr=-.01,.4&ss=163",
+ "https://my.mpskin.com/tour/38ca3651j?play=1&sr=3.07,1.04&ss=45",
+ "https://my.mpskin.com/tour/38ca3651j?play=1&sr=.04,1.31&ss=85"
 ];
 
+/* 코스 정의(12개) */
+const COURSES = [
+ {title:"고요한 호흡 코스", dur:"10분", steps:"3곳", desc:"4-4-6 호흡, 조용·앉아서.", link:DL[0], tags:["조용함","앉아서 휴식"]},
+ {title:"그늘 보행 코스", dur:"15분", steps:"4곳", desc:"그늘 위주 저속 보행.", link:DL[1], tags:["그늘","저속 보행"]},
+ {title:"사운드 포인트", dur:"12분", steps:"3곳", desc:"바람·새·물소리 집중.", link:DL[2], tags:["자연 소리","조용함"]},
+ {title:"숲 명상 코스", dur:"8분", steps:"3곳", desc:"호흡 관찰·신체 스캔.", link:DL[3], tags:["조용함","명상"]},
+ {title:"햇살 스트레칭", dur:"7분", steps:"3곳", desc:"따뜻한 지점 스트레칭.", link:DL[4], tags:["햇살"]},
+ {title:"솔바람 길", dur:"12분", steps:"3곳", desc:"솔향 가득한 산책.", link:DL[5], tags:["저속 보행","자연 소리"]},
+ {title:"수변 휴식 포인트", dur:"10분", steps:"3곳", desc:"물가에서 호흡 휴식.", link:DL[6], tags:["수변","조용함"]},
+ {title:"소나무 쉼터", dur:"9분", steps:"3곳", desc:"그늘+앉아 휴식.", link:DL[7], tags:["그늘","앉아서 휴식"]},
+ {title:"야생화 산책", dur:"11분", steps:"3곳", desc:"가벼운 산책과 관찰.", link:DL[8], tags:["저속 보행","햇살"]},
+ {title:"전망 포인트 호흡", dur:"8분", steps:"2곳", desc:"전망 지점에서 심호흡.", link:DL[9], tags:["전망","호흡"]},
+ {title:"숲길 리듬 보행", dur:"10분", steps:"3곳", desc:"메트로놈 템포 보행.", link:DL[10], tags:["저속 보행","조용함"]},
+ {title:"음영 명상 지대", dur:"9분", steps:"3곳", desc:"시원한 음영에서 명상.", link:DL[11], tags:["그늘","조용함"]}
+];
+
+/* 웹훅/카카오(옵션) */
+const WEBHOOK_URL=""; const KAKAO_LINK="";
+
 const $=id=>document.getElementById(id);
-const prefs = ()=> new Set([...document.querySelectorAll('.pref:checked')].map(i=>i.value));
+const prefs=()=> new Set([...document.querySelectorAll('.pref:checked')].map(i=>i.value));
 function renderVals(){ $('moodVal').textContent=$('mood').value; $('stressVal').textContent=$('stress').value; }
 $('mood').addEventListener('input',renderVals); $('stress').addEventListener('input',renderVals); renderVals();
 
-function score(rt,ps,mood,stress){
-  let s=0; for(const k in rt.prefer) if(ps.has(k)) s+=rt.prefer[k];
-  if(stress>=7 && (rt.key==="CALM_BREATH"||rt.key==="FOREST_MEDIT")) s+=0.15;
-  if(mood<=3   && (rt.key==="CALM_BREATH"||rt.key==="FOREST_MEDIT")) s+=0.10;
+function score(course, ps, mood, stress){
+  let s=0; course.tags.forEach(t=>{ if(ps.has(t)) s+=0.5; });
+  if(stress>=7 && (course.tags.includes('조용함')||course.tags.includes('명상'))) s+=0.2;
+  if(mood<=3 &&  (course.tags.includes('조용함')||course.tags.includes('명상'))) s+=0.1;
   return s;
 }
-function bestRoute(){
-  const m=+$('mood').value, s=+$('stress').value, p=prefs();
-  return ROUTES.map(r=>({r,v:score(r,p,m,s)})).sort((a,b)=>b.v-a.v)[0];
+function mkCourseCard(c, pct){
+  const div=document.createElement('div');
+  div.className='course';
+  div.innerHTML=`<h4>${c.title}</h4>
+    <div class="gauge"><div class="bar" style="width:${pct||0}%"></div></div>
+    <div class="muted">${c.desc}</div>
+    <div style="margin:6px 0"><span class="pill">약 ${c.dur}</span><span class="pill">${c.steps}</span>${c.tags.map(t=>`<span class="pill">${t}</span>`).join(' ')}</div>
+    <button class="btn" data-link="${c.link}">시작하기</button>`;
+  div.querySelector('button').addEventListener('click', ()=> start(c.link));
+  return div;
 }
-function uuid(){ return 's'+Math.random().toString(16).slice(2)+Date.now().toString(36); }
+
+function recommendTop3(){
+  const m=+$('mood').value, s=+$('stress').value, ps=prefs();
+  const list = COURSES.map(c=>({c, v:score(c,ps,m,s)})).sort((a,b)=>b.v-a.v).slice(0,3);
+  $('topGrid').innerHTML=''; list.forEach(({c,v})=> $('topGrid').appendChild(mkCourseCard(c, Math.round((v+0.6)*100))));
+  $('top3').style.display='block'; $('all').style.display='none';
+}
+function showAll(){
+  $('allGrid').innerHTML=''; COURSES.forEach(c=> $('allGrid').appendChild(mkCourseCard(c, 0)));
+  $('all').style.display='block';
+}
+
 function toTop(url){
   try{ window.top.location.href=url; return; }catch(e){}
   try{ window.top.location.assign(url); return; }catch(e){}
-  // 폼 제출 폴백(일부 샌드박스에서 효과적)
   const u=new URL(url), f=$('topForm'); f.action=u.origin+u.pathname; f.innerHTML='';
   u.searchParams.forEach((v,k)=>{ const i=document.createElement('input'); i.type='hidden'; i.name=k; i.value=v; f.appendChild(i); });
   f.submit();
 }
-
-/* 상태 */
+function uuid(){ return 's'+Math.random().toString(16).slice(2)+Date.now().toString(36); }
 let SESSION=null;
-function recommend(){
-  const br=bestRoute(), m=+$('mood').value, s=+$('stress').value, pct=Math.round((br.v+0.6)*100);
-  $('out').style.display='block';
-  $('title').textContent=br.r.title; $('bar').style.width=pct+'%';
-  $('score').textContent=`추천점수 ${pct}점`;
-  $('desc').textContent=br.r.desc; $('eta').textContent=br.r.eta; $('steps').textContent=br.r.steps;
-  SESSION={ id:uuid(), routeKey:br.r.key, baseline:{mood:m,stress:s}, startTs:Date.now() };
-  $('status').style.display='block'; $('status').textContent=`세션: ${SESSION.id} / 시작 스트레스 ${s}`;
-}
-function start(){
-  if(!SESSION) recommend();
-  const {mood,stress}=SESSION.baseline;
-  const base=DEEPLINKS[SESSION.routeKey]||"#";
-  const url=`${base}&session=${SESSION.id}&mood=${mood}&stress=${stress}`;
+function start(baseUrl){
+  if(!SESSION){
+    SESSION={ id:uuid(), baseline:{mood:+$('mood').value, stress:+$('stress').value}, startTs:Date.now() };
+  }
+  const url = `${baseUrl}&session=${SESSION.id}&mood=${SESSION.baseline.mood}&stress=${SESSION.baseline.stress}`;
   toTop(url);
 }
+
 async function endReport(){
   if(!SESSION){ alert('먼저 코스를 시작하세요.'); return; }
   const final = prompt('체험 종료 스트레스(VAS) (0~10)', '4'); if(final===null) return;
   SESSION.endTs=Date.now(); SESSION.finalStress=Number(final);
-  const payload={session:SESSION.id, routeKey:SESSION.routeKey, baseline:SESSION.baseline,
-                 finalStress:SESSION.finalStress, durationMin:Math.round((SESSION.endTs-SESSION.startTs)/60000),
-                 ts:new Date().toISOString()};
-  $('status').textContent='리포트 전송 중…';
+  const payload={session:SESSION.id, baseline:SESSION.baseline, finalStress:SESSION.finalStress,
+                 durationMin:Math.round((SESSION.endTs-SESSION.startTs)/60000), ts:new Date().toISOString()};
+  $('status').style.display='block'; $('status').textContent='리포트 전송 중…';
   let ok=false;
   if(WEBHOOK_URL){
     try{ const blob=new Blob([JSON.stringify(payload)],{type:'application/json'}); ok=navigator.sendBeacon?.(WEBHOOK_URL,blob)||false; }catch(e){}
     if(!ok){ try{ ok=(await fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})).ok; }catch(e){} }
-  } else { ok=true; } // 주소가 없어도 흐름 테스트 허용
-  $('status').textContent= ok ? '완료! 리포트 안내로 이동합니다.' : '전송 실패(주소 확인).';
+  } else { ok=true; }
+  $('status').textContent= ok ? '완료! (카카오 안내 선택 설정 가능)' : '전송 실패(주소 확인)';
   if(KAKAO_LINK){ setTimeout(()=>toTop(KAKAO_LINK), 600); }
 }
 
-/* 버튼 바인딩 */
-$('recBtn').addEventListener('click',recommend);
-$('quickBtn').addEventListener('click',()=>{ recommend(); start(); });
-$('startBtn').addEventListener('click',start);
-$('endBtn').addEventListener('click',endReport);
+/* 바인딩 */
+document.getElementById('recBtn').addEventListener('click', recommendTop3);
+document.getElementById('allBtn').addEventListener('click', showAll);
+document.getElementById('endBtn').addEventListener('click', endReport);
 </script>
 </body>
 </html>
