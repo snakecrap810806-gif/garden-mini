@@ -3,30 +3,54 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<title>폐루프 치유 코스 · 다코스 미니(토글 포함)</title>
+<title>폐루프 치유 코스 · 미니</title>
+
+<!-- 세련된 한글 폰트: Pretendard Variable -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"/>
+
 <style>
-  :root{--ink:#0f172a;--muted:#64748b;--pri:#2563eb;--panel:#fff}
-  *{box-sizing:border-box} html,body{margin:0;background:transparent;font-family:system-ui,"Noto Sans KR",sans-serif;color:var(--ink)}
+  :root{
+    --ink:#0f172a;--muted:#64748b;--pri:#2563eb;--panel:#fff;
+    --toggle-bottom:80px; /* 필요하면 여기 숫자만 조절하세요 (기본 80px) */
+  }
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;background:transparent;
+    font-family:"Pretendard Variable","Pretendard","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
+    color:var(--ink); letter-spacing:-0.3px; /* 전체 자간 */
+  }
+
   /* 토글 버튼 */
-  .toggle{position:fixed;right:14px;bottom:14px;z-index:10001;background:var(--pri);color:#fff;
-          border:0;border-radius:999px;padding:10px 16px;font-weight:900;cursor:pointer;
-          box-shadow:0 8px 20px rgba(37,99,235,.35);}
-  .toggle.off{opacity:.85;background:#3b82f6}
+  .toggle{
+    position:fixed; right:14px; bottom:var(--toggle-bottom); z-index:10001;
+    background:var(--pri); color:#fff; border:0; border-radius:999px;
+    padding:10px 16px; font-weight:900; cursor:pointer;
+    box-shadow:0 8px 20px rgba(37,99,235,.35);
+  }
+  .toggle.off{opacity:.9;background:#3b82f6}
   .toggle:focus{outline:3px solid #bfdbfe;outline-offset:2px}
+
   /* 패널 */
   .panel{position:relative;z-index:10000}
   .wrap{max-width:440px;margin:0 auto;padding:12px}
-  .card{background:var(--panel);border-radius:14px;box-shadow:0 6px 18px rgba(2,6,23,.10);padding:14px}
+  .card{
+    background:var(--panel); border-radius:14px;
+    box-shadow:0 6px 18px rgba(2,6,23,.10); padding:14px
+  }
   .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
   .btn{background:var(--pri);color:#fff;border:0;border-radius:10px;padding:10px 12px;font-weight:800;cursor:pointer}
   .ghost{background:#eef2ff;color:#2b46e3}
   .muted{color:var(--muted);font-size:12px}
   label{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-top:6px;font-weight:700}
   .val{font-weight:900}
+
+  /* 헤드라인의 자간은 조금 더 타이트 */
+  h1{font-size:16px;margin:0;letter-spacing:-0.4px}
+
   .grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:8px}
   @media (min-width:420px){ .grid{grid-template-columns:1fr 1fr} }
   .course{border:1px solid #e5e7eb;border-radius:12px;padding:10px}
-  .course h4{margin:0 0 4px 0;font-size:15px}
+  .course h4{margin:0 0 4px 0;font-size:15px;letter-spacing:-0.4px}
   .pill{display:inline-block;font-size:11px;background:#eef2ff;border-radius:999px;padding:4px 8px;margin-right:6px;margin-top:4px}
   .bar{height:6px;background:linear-gradient(90deg,#22c55e,#16a34a);width:0;border-radius:999px}
   .gauge{height:6px;background:#e5e7eb;border-radius:999px;overflow:hidden}
@@ -36,10 +60,8 @@
 </style>
 </head>
 <body>
-<!-- 파란색 ON/OFF 토글 버튼 -->
-<button id="toggle" class="toggle" aria-pressed="true" title="미니맵 보이기/숨기기 (T)">
-  ON
-</button>
+<!-- 파란색 ON/OFF 토글 버튼 (위치: bottom = var(--toggle-bottom)) -->
+<button id="toggle" class="toggle" aria-pressed="true" title="미니맵 보이기/숨기기 (T)">ON</button>
 
 <!-- 미니 패널 -->
 <div class="panel">
@@ -47,7 +69,7 @@
     <div class="card">
       <div style="display:flex;align-items:center;gap:8px">
         <span style="font-size:11px;color:#fff;background:#2563eb;border-radius:999px;padding:3px 8px">2025 서울국제정원박람회</span>
-        <h1 style="font-size:16px;margin:0">폐루프 치유 코스(다양한 코스)</h1>
+        <h1>폐루프 치유 코스</h1>
       </div>
       <div class="muted">사전값 → 코스 시작(메인 VR 이동) → 종료/리포트까지 한 번에.</div>
 
@@ -122,7 +144,7 @@ TOGGLE.addEventListener('click', ()=> setOpen(TOGGLE.textContent!=='ON'));
 window.addEventListener('keydown', (e)=>{ if(e.key.toLowerCase()==='t') setOpen(TOGGLE.textContent!=='ON'); });
 
 /* ======= 원래 기능들 ======= */
-/* 딥링크(사용자 제공 12개) */
+/* 딥링크(제공 12개) */
 const DL = [
  "https://my.mpskin.com/tour/38ca3651j?play=1&sr=,-.01&ss=217",
  "https://my.mpskin.com/tour/38ca3651j?play=1&sr=-3.12,.58&ss=226",
@@ -154,7 +176,6 @@ const COURSES = [
  {title:"음영 명상 지대", dur:"9분", steps:"3곳", desc:"시원한 음영에서 명상.", link:DL[11], tags:["그늘","조용함"]}
 ];
 
-/* 웹훅/카카오(옵션) */
 const WEBHOOK_URL=""; const KAKAO_LINK="";
 
 const $=id=>document.getElementById(id);
