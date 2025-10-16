@@ -21,6 +21,21 @@
     color:var(--ink); letter-spacing:-0.3px;
   }
 
+  /* ===== 상단 헤더(배지+타이틀 한 줄 고정) ===== */
+  .head{ display:flex; align-items:center; gap:8px; min-width:0; }
+  .badge{
+    font-size:11px; color:#fff; background:#2563eb;
+    border-radius:999px; padding:3px 8px; white-space:nowrap; flex:0 0 auto;
+  }
+  .title{
+    margin:0; font-size:16px; letter-spacing:-0.4px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1 1 auto;
+  }
+  @media (max-width:640px){
+    .badge{ font-size:10px; padding:2px 7px; }
+    .title{ font-size:15px; }
+  }
+
   /* 토글 버튼 */
   .toggle{
     position:fixed; right:14px; bottom:var(--toggle-bottom); z-index:10001;
@@ -39,7 +54,6 @@
   .muted{color:var(--muted); font-size:12px}
   label{display:flex; justify-content:space-between; align-items:center; font-size:13px; margin-top:6px; font-weight:700}
   .val{font-weight:900}
-  h1{font-size:16px; margin:0; letter-spacing:-0.4px}
 
   /* 코스 카드 */
   .grid{display:grid; grid-template-columns:1fr; gap:10px; margin-top:8px}
@@ -88,9 +102,10 @@
 <div class="panel">
   <div class="wrap">
     <div class="card">
-      <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:11px;color:#fff;background:#2563eb;border-radius:999px;padding:3px 8px">2025 서울국제정원박람회</span>
-        <h1>AI 맞춤 정원치유 코스</h1>
+      <!-- 헤더: 배지 + 타이틀 (한 줄 고정/말줄임) -->
+      <div class="head">
+        <span class="badge">2025 서울국제정원박람회</span>
+        <h1 class="title">AI 맞춤 정원치유 코스</h1>
       </div>
       <div class="muted">기분·스트레스 지표 + 선호 태그 기반, 추천 3코스 바로 실행</div>
 
