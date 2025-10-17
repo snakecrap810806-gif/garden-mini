@@ -4,114 +4,138 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <title>AI 맞춤 정원치유 코스 · 미니</title>
+
+<!-- 세련된 한글 폰트 -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"/>
+
 <style>
-  :root{ --ink:#0f172a; --muted:#64748b; --pri:#2563eb; --btn-h:44px; }
+  :root{
+    --ink:#0f172a; --muted:#64748b; --pri:#2563eb; --panel:#fff;
+    --toggle-bottom:80px;   /* Matterport 버튼과 겹치면 숫자만 올리세요 */
+    --btn-h:44px;           /* 네 개 버튼 높이 통일 */
+  }
   *{box-sizing:border-box}
   html,body{
-    margin:0;background:transparent;color:var(--ink);
+    margin:0;background:transparent;
     font-family:"Pretendard Variable","Pretendard","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
-    letter-spacing:-0.3px;
+    color:var(--ink); letter-spacing:-0.3px;
   }
 
-  .wrap{max-width:440px;margin:0 auto;padding:12px}
-  .card{background:#fff;border-radius:14px;box-shadow:0 6px 18px rgba(2,6,23,.10);padding:14px}
-
-  .head{display:flex;align-items:center;gap:8px;min-width:0}
-  .badge{font-size:11px;color:#fff;background:#2563eb;border-radius:999px;padding:3px 8px;white-space:nowrap;flex:0 0 auto}
-  .title{margin:0;font-size:16px;letter-spacing:-0.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1 1 auto}
-  @media (max-width:640px){ .badge{font-size:10px;padding:2px 7px} .title{font-size:15px} }
-
-  .muted{color:var(--muted);font-size:12px}
-  label{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-top:6px;font-weight:700}
-  .val{font-weight:900}
-  .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
-
-  .btn{background:var(--pri);color:#fff;border:0;border-radius:10px;padding:0 14px;height:var(--btn-h);
-       display:flex;align-items:center;justify-content:center;font-weight:800;cursor:pointer}
-  .ghost{background:#eef2ff;color:#2b46e3}
-  .btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-  @media (max-width:420px){ .btn-grid{grid-template-columns:1fr} }
-
-  .top3{margin-top:10px}
-  .grid{display:grid;grid-template-columns:1fr;gap:10px}
-  @media (min-width:420px){ .grid{grid-template-columns:1fr 1fr} }
-  .course{border:1px solid #e5e7eb;border-radius:12px;padding:10px}
-  .course h4{margin:0 0 4px 0;font-size:15px;letter-spacing:-0.4px}
-  .pill{display:inline-block;font-size:11px;background:#eef2ff;border-radius:999px;padding:4px 8px;margin-right:6px;margin-top:4px}
-  .gauge{height:6px;background:#e5e7eb;border-radius:999px;overflow:hidden}
-  .bar{height:6px;background:linear-gradient(90deg,#22c55e,#16a34a);width:0;border-radius:999px}
-
-  /* 패널 접힘 */
-  .panel.collapsed{display:none}
-
-  /* 내부 토글(필요 시 숨김) */
+  /* 토글 버튼 */
   .toggle{
-    position:fixed; right:14px; bottom:14px;
-    z-index:10001; background:#2563eb; color:#fff; border:0; border-radius:999px;
-    padding:10px 16px; font-weight:900; cursor:pointer; box-shadow:0 8px 20px rgba(37,99,235,.35)
+    position:fixed; right:14px; bottom:var(--toggle-bottom); z-index:10001;
+    background:var(--pri); color:#fff; border:0; border-radius:999px;
+    padding:10px 16px; font-weight:900; cursor:pointer;
+    box-shadow:0 8px 20px rgba(37,99,235,.35);
   }
   .toggle.off{opacity:.9;background:#3b82f6}
-  body.collapsed .toggle{ bottom:6px; right:6px; }
+  .toggle:focus{outline:3px solid #bfdbfe;outline-offset:2px}
 
-  /* 설문 모달 */
-  .modal-root{position:fixed;inset:0;display:none;z-index:10002}
+  /* 카드 */
+  .panel{position:relative; z-index:10000}
+  .wrap{max-width:440px; margin:0 auto; padding:12px}
+  .card{background:var(--panel); border-radius:14px; box-shadow:0 6px 18px rgba(2,6,23,.10); padding:14px}
+  .row{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+  .muted{color:var(--muted); font-size:12px}
+  label{display:flex; justify-content:space-between; align-items:center; font-size:13px; margin-top:6px; font-weight:700}
+  .val{font-weight:900}
+  h1{font-size:16px; margin:0; letter-spacing:-0.4px}
+
+  /* 코스 카드 */
+  .grid{display:grid; grid-template-columns:1fr; gap:10px; margin-top:8px}
+  @media (min-width:420px){ .grid{grid-template-columns:1fr 1fr} }
+  .course{border:1px solid #e5e7eb; border-radius:12px; padding:10px}
+  .course h4{margin:0 0 4px 0; font-size:15px; letter-spacing:-0.4px}
+  .pill{display:inline-block; font-size:11px; background:#eef2ff; border-radius:999px; padding:4px 8px; margin-right:6px; margin-top:4px}
+  .bar{height:6px; background:linear-gradient(90deg,#22c55e,#16a34a); width:0; border-radius:999px}
+  .gauge{height:6px; background:#e5e7eb; border-radius:999px; overflow:hidden}
+  .top3{margin-top:10px}
+
+  /* 네 개 버튼 동일 규격 */
+  .btn{background:var(--pri); color:#fff; border:0; border-radius:10px;
+       padding:0 14px; height:var(--btn-h);
+       display:flex; align-items:center; justify-content:center;
+       font-weight:800; cursor:pointer}
+  .ghost{background:#eef2ff; color:#2b46e3}
+  .btn-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px}
+  @media (max-width:420px){ .btn-grid{grid-template-columns:1fr} }
+
+  /* 접힘 상태 */
+  .collapsed .panel{display:none}
+
+  /* ===== 설문 모달 ===== */
+  .modal-root{position:fixed; inset:0; display:none; z-index:10002}
   .modal-root.open{display:block}
-  .backdrop{position:absolute;inset:0;background:rgba(15,23,42,.45);backdrop-filter:saturate(120%) blur(2px)}
-  .modal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(92vw,480px);height:min(86vh,760px);
-         background:#fff;border-radius:16px;box-shadow:0 20px 50px rgba(2,6,23,.35);display:flex;flex-direction:column;overflow:hidden}
-  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #eef2ff;font-weight:900}
-  .modal-body{flex:1;background:#f8fafc}
-  .modal-body iframe{width:100%;height:100%;border:0;background:#fff}
-  .modal-foot{padding:10px 14px;border-top:1px solid #eef2ff;display:flex;gap:8px;justify-content:flex-end}
-  .modal-head .title{font-size:14px} .modal-head .close{background:#eef2ff;color:#334155;border:0;border-radius:10px;padding:6px 10px;font-weight:800;cursor:pointer}
+  .backdrop{position:absolute; inset:0; background:rgba(15,23,42,.45); backdrop-filter:saturate(120%) blur(2px);}
+  .modal{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+         width:min(92vw,480px); height:min(86vh,760px);
+         background:#fff; border-radius:16px; box-shadow:0 20px 50px rgba(2,6,23,.35);
+         display:flex; flex-direction:column; overflow:hidden;}
+  .modal-head{display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid #eef2ff; font-weight:900}
+  .modal-head .title{font-size:14px}
+  .modal-head .close{background:#eef2ff; color:#334155; border:0; border-radius:10px; padding:6px 10px; font-weight:800; cursor:pointer}
+  .modal-body{flex:1; background:#f8fafc}
+  .modal-body iframe{width:100%; height:100%; border:0; background:#fff}
+  .modal-foot{padding:10px 14px; border-top:1px solid #eef2ff; display:flex; gap:8px; justify-content:flex-end}
+  .hint{font-size:12px; color:#64748b; padding:8px 14px 0}
 </style>
 </head>
 <body>
+<!-- ON/OFF 토글 -->
+<button id="toggle" class="toggle" aria-pressed="true" title="미니맵 보이기/숨기기 (T)">ON</button>
 
-<button id="toggle" class="toggle" aria-pressed="true" title="보이기/숨기기 (T)">ON</button>
+<!-- 미니 패널 -->
+<div class="panel">
+  <div class="wrap">
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:11px;color:#fff;background:#2563eb;border-radius:999px;padding:3px 8px">2025 서울국제정원박람회</span>
+        <h1>AI 맞춤 정원치유 코스</h1>
+      </div>
+      <div class="muted">기분·스트레스 지표 + 선호 태그 기반, 추천 3코스 바로 실행</div>
 
-<div id="panel" class="panel">
-  <div class="wrap"><div class="card">
-    <div class="head">
-      <span class="badge">2025 서울국제정원박람회</span>
-      <h1 class="title">AI 맞춤 정원치유 코스</h1>
+      <!-- 사전 입력 -->
+      <label>현재 기분(VAS) <span class="val" id="moodVal">5</span>/10</label>
+      <input type="range" id="mood" min="0" max="10" value="5" style="width:100%">
+      <label>현재 스트레스(VAS) <span class="val" id="stressVal">5</span>/10</label>
+      <input type="range" id="stress" min="0" max="10" value="5" style="width:100%">
+
+      <div class="row" style="margin-top:6px">
+        <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="조용함" checked> 조용함</label>
+        <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="그늘"> 그늘/시원함</label>
+        <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="저속 보행"> 저속 보행</label>
+        <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="자연 소리"> 자연 소리</label>
+        <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="앉아서 휴식"> 앉아서 휴식</label>
+        <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="햇살"> 햇살</label>
+        <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="수변"> 수변</label>
+        <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="전망"> 전망</label>
+      </div>
+
+      <!-- 2×2 동일 규격 버튼 -->
+      <div class="btn-grid">
+        <button class="btn" id="recBtn">추천 3개 보기</button>
+        <button class="btn ghost" id="allBtn">모든 코스 보기</button>
+        <button class="btn ghost" id="surveyBtn" title="네이버 설문 팝업">설문 참여</button>
+        <button class="btn ghost" id="endBtn" title="체험 후 클릭">종료/리포트</button>
+      </div>
+      <div id="status" class="muted" style="display:none; margin-top:6px"></div>
+
+      <!-- 추천/전체 리스트 -->
+      <div id="top3" class="top3" style="display:none">
+        <h3 style="margin:10px 0 6px 0;font-size:15px">추천 코스 Top 3</h3>
+        <div id="topGrid" class="grid"></div>
+      </div>
+      <div id="all" style="display:none">
+        <h3 style="margin:10px 0 6px 0;font-size:15px">전체 코스</h3>
+        <div id="allGrid" class="grid"></div>
+      </div>
+
+      <form id="topForm" method="get" target="_top" style="display:none"></form>
     </div>
-    <div class="muted">기분·스트레스 지표 + 선호 태그 기반, 추천 3코스 바로 실행</div>
-
-    <label>현재 기분(VAS) <span class="val" id="moodVal">5</span>/10</label>
-    <input type="range" id="mood" min="0" max="10" value="5" style="width:100%">
-    <label>현재 스트레스(VAS) <span class="val" id="stressVal">5</span>/10</label>
-    <input type="range" id="stress" min="0" max="10" value="5" style="width:100%">
-
-    <div class="row" style="margin-top:6px">
-      <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="조용함" checked> 조용함</label>
-      <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="그늘"> 그늘/시원함</label>
-      <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="저속 보행"> 저속 보행</label>
-      <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="자연 소리"> 자연 소리</label>
-      <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="앉아서 휴식"> 앉아서 휴식</label>
-      <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="햇살"> 햇살</label>
-      <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="수변"> 수변</label>
-      <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="전망"> 전망</label>
-    </div>
-
-    <div class="btn-grid">
-      <button class="btn" id="recBtn">추천 3개 보기</button>
-      <button class="btn ghost" id="allBtn">모든 코스 보기</button>
-      <button class="btn ghost" id="surveyBtn">설문 참여</button>
-      <button class="btn ghost" id="endBtn">종료/리포트</button>
-    </div>
-
-    <div id="status" class="muted" style="display:none;margin-top:6px"></div>
-
-    <div id="top3" class="top3" style="display:none"><h3 style="margin:10px 0 6px 0;font-size:15px">추천 코스 Top 3</h3><div id="topGrid" class="grid"></div></div>
-    <div id="all" style="display:none"><h3 style="margin:10px 0 6px 0;font-size:15px">전체 코스</h3><div id="allGrid" class="grid"></div></div>
-
-    <form id="topForm" method="get" target="_top" style="display:none"></form>
-  </div></div>
+  </div>
 </div>
 
-<!-- 설문 모달 -->
+<!-- ===== 설문 모달 ===== -->
 <div id="surveyRoot" class="modal-root" aria-hidden="true" role="dialog" aria-modal="true">
   <div class="backdrop" id="surveyBackdrop"></div>
   <div class="modal" role="document">
@@ -119,14 +143,38 @@
       <div class="title">치유 경험 설문</div>
       <button class="close" id="surveyClose" aria-label="닫기">닫기</button>
     </div>
-    <div class="modal-body"><iframe id="surveyFrame" src="" loading="lazy" title="설문"></iframe></div>
-    <div class="modal-foot"><button class="btn ghost" id="surveyOpenNew">새 창에서 열기</button></div>
+    <div class="hint" id="surveyHint" style="display:none">
+      임베드가 차단된 경우 <b>아래 ‘새 창에서 열기’</b>를 눌러 진행해 주세요.
+    </div>
+    <div class="modal-body">
+      <iframe id="surveyFrame" src="" loading="lazy" title="설문"></iframe>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" id="surveyOpenNew">새 창에서 열기</button>
+    </div>
   </div>
 </div>
 
 <script>
-/* ===== 유틸 ===== */
-const $=id=>document.getElementById(id);
+/* ===== ON/OFF 토글 ===== */
+const TOGGLE = document.getElementById('toggle');
+function setOpen(open){
+  document.body.classList.toggle('collapsed', !open);
+  TOGGLE.textContent = open ? 'ON' : 'OFF';
+  TOGGLE.classList.toggle('off', !open);
+  TOGGLE.setAttribute('aria-pressed', String(open));
+  try{ localStorage.setItem('mini_open', open?'1':'0'); }catch(e){}
+}
+(function(){
+  const sp=new URLSearchParams(location.search); const q=sp.get('open');
+  let open = q==='0' ? false : true;
+  try{ const s=localStorage.getItem('mini_open'); if(s==='0') open=false; if(s==='1') open=true; }catch(e){}
+  setOpen(open);
+})();
+TOGGLE.addEventListener('click', ()=> setOpen(TOGGLE.textContent!=='ON'));
+window.addEventListener('keydown', e=>{ if(e.key.toLowerCase()==='t') setOpen(TOGGLE.textContent!=='ON'); });
+
+/* ===== 코스 정의/로직 ===== */
 const DL=[
  "https://my.mpskin.com/tour/38ca3651j?play=1&sr=,-.01&ss=217",
  "https://my.mpskin.com/tour/38ca3651j?play=1&sr=-3.12,.58&ss=226",
@@ -155,14 +203,13 @@ const COURSES=[
  {title:"숲길 리듬 보행", dur:"10분", steps:"3곳", desc:"메트로놈 템포 보행.", link:DL[10], tags:["저속 보행","조용함"]},
  {title:"음영 명상 지대", dur:"9분", steps:"3곳", desc:"시원한 음영에서 명상.", link:DL[11], tags:["그늘","조용함"]}
 ];
-const SURVEY_URL="https://naver.me/57QTs9oa";
 
-/* 값 표시 */
+const WEBHOOK_URL=""; const KAKAO_LINK="";
+const $=id=>document.getElementById(id);
+const prefs=()=> new Set([...document.querySelectorAll('.pref:checked')].map(i=>i.value));
 function renderVals(){ $('moodVal').textContent=$('mood').value; $('stressVal').textContent=$('stress').value; }
 $('mood').addEventListener('input',renderVals); $('stress').addEventListener('input',renderVals); renderVals();
 
-/* 추천 */
-const prefs=()=> new Set([...document.querySelectorAll('.pref:checked')].map(i=>i.value));
 function score(course, ps, mood, stress){
   let s=0; course.tags.forEach(t=>{ if(ps.has(t)) s+=0.5; });
   if(stress>=7 && (course.tags.includes('조용함')||course.tags.includes('명상'))) s+=0.2;
@@ -185,11 +232,8 @@ function recommendTop3(){
   $('topGrid').innerHTML=''; list.forEach(({c,v})=> $('topGrid').appendChild(mkCourseCard(c,Math.round((v+0.6)*100))));
   $('top3').style.display='block'; $('all').style.display='none';
 }
-function showAll(){ $('allGrid').innerHTML=''; COURSES.forEach(c=> $('allGrid').appendChild(mkCourseCard(c,0))); $('all').style.display='block'; $('top3').style.display='none'; }
-document.getElementById('recBtn').addEventListener('click', recommendTop3);
-document.getElementById('allBtn').addEventListener('click', showAll);
+function showAll(){ $('allGrid').innerHTML=''; COURSES.forEach(c=> $('allGrid').appendChild(mkCourseCard(c,0))); $('all').style.display='block'; }
 
-/* 메인 VR로 이동 */
 function toTop(url){
   try{ window.top.location.href=url; return; }catch(e){}
   try{ window.top.location.assign(url); return; }catch(e){}
@@ -197,58 +241,54 @@ function toTop(url){
   u.searchParams.forEach((v,k)=>{ const i=document.createElement('input'); i.type='hidden'; i.name=k; i.value=v; f.appendChild(i); });
   f.submit();
 }
-let SESSION=null;
 function uuid(){ return 's'+Math.random().toString(16).slice(2)+Date.now().toString(36); }
+let SESSION=null;
 function start(baseUrl){
   if(!SESSION){ SESSION={ id:uuid(), baseline:{mood:+$('mood').value, stress:+$('stress').value}, startTs:Date.now() }; }
   const url=`${baseUrl}&session=${SESSION.id}&mood=${SESSION.baseline.mood}&stress=${SESSION.baseline.stress}`;
   toTop(url);
 }
-
-/* 종료/리포트(샘플) */
-document.getElementById('endBtn').addEventListener('click', async()=>{
+async function endReport(){
   if(!SESSION){ alert('먼저 코스를 시작하세요.'); return; }
   const final=prompt('체험 종료 스트레스(VAS) (0~10)', '4'); if(final===null) return;
   SESSION.endTs=Date.now(); SESSION.finalStress=Number(final);
-  const msg=`리포트(샘플)  세션:${SESSION.id}  사전:${SESSION.baseline.stress} → 사후:${SESSION.finalStress}`;
-  $('status').style.display='block'; $('status').textContent=msg;
-});
-
-/* 설문 모달 */
-const surveyRoot=$('surveyRoot'), surveyFrame=$('surveyFrame');
-$('surveyBtn').addEventListener('click', ()=>{ surveyRoot.classList.add('open'); surveyFrame.src= "https://naver.me/57QTs9oa"; });
-$('surveyBackdrop').addEventListener('click', ()=>{ surveyRoot.classList.remove('open'); surveyFrame.removeAttribute('src'); });
-$('surveyClose').addEventListener('click', ()=>{ surveyRoot.classList.remove('open'); surveyFrame.removeAttribute('src'); });
-$('surveyOpenNew').addEventListener('click', ()=> window.open("https://naver.me/57QTs9oa",'_blank','noopener'));
-
-/* 내부 토글 */
-const TOGGLE=$('toggle'), PANEL=$('panel');
-function setOpen(open){
-  PANEL.classList.toggle('collapsed', !open);
-  document.body.classList.toggle('collapsed', !open);
-  TOGGLE.textContent = open ? 'ON' : 'OFF';
-  TOGGLE.classList.toggle('off', !open);
-  TOGGLE.setAttribute('aria-pressed', String(open));
-  try{ localStorage.setItem('mini_open', open?'1':'0'); }catch(e){}
+  const payload={session:SESSION.id, baseline:SESSION.baseline, finalStress:SESSION.finalStress,
+                 durationMin:Math.round((SESSION.endTs-SESSION.startTs)/60000), ts:new Date().toISOString()};
+  $('status').style.display='block'; $('status').textContent='리포트 전송 중…';
+  let ok=false;
+  if(WEBHOOK_URL){
+    try{ const blob=new Blob([JSON.stringify(payload)],{type:'application/json'}); ok=navigator.sendBeacon?.(WEBHOOK_URL,blob)||false; }catch(e){}
+    if(!ok){ try{ ok=(await fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})).ok; }catch(e){} }
+  } else { ok=true; }
+  $('status').textContent= ok ? '완료! (카카오 안내 선택 설정 가능)' : '전송 실패(주소 확인)';
+  if(KAKAO_LINK){ setTimeout(()=>toTop(KAKAO_LINK),600); }
 }
-(function init(){
-  let open=true; try{ const s=localStorage.getItem('mini_open'); if(s==='0') open=false; }catch(e){}
-  setOpen(open);
-})();
-TOGGLE.addEventListener('click', ()=> setOpen(TOGGLE.textContent!=='ON'));
-window.addEventListener('keydown', e=>{ if(e.key.toLowerCase()==='t') setOpen(TOGGLE.textContent!=='ON'); });
-</script>
+document.getElementById('recBtn').addEventListener('click', recommendTop3);
+document.getElementById('allBtn').addEventListener('click', showAll);
+document.getElementById('endBtn').addEventListener('click', endReport);
 
-<!-- 내부 토글 숨김 옵션 (hideToggle=1 또는 transparent=1) -->
-<script>
-(function(){
-  var q=new URLSearchParams(location.search);
-  if(q.get('hideToggle')==='1' || q.get('transparent')==='1' || q.has('hideToggle')){
-    var st=document.createElement('style');
-    st.textContent='.toggle{display:none !important}';
-    document.head.appendChild(st);
-  }
-})();
+/* ===== 설문 모달 제어 ===== */
+const SURVEY_URL = "https://naver.me/57QTs9oa";  // 네이버 폼 URL
+const surveyRoot = document.getElementById('surveyRoot');
+const surveyFrame = document.getElementById('surveyFrame');
+const surveyHint = document.getElementById('surveyHint');
+
+function openSurvey(){
+  surveyHint.style.display='none';
+  surveyFrame.removeAttribute('src');
+  surveyRoot.classList.add('open');
+  surveyFrame.src = SURVEY_URL;           // 임베드 시도
+  setTimeout(()=>{ surveyHint.style.display='block'; },1500); // 차단 시 안내
+}
+function closeSurvey(){
+  surveyRoot.classList.remove('open');
+  surveyFrame.removeAttribute('src');
+}
+document.getElementById('surveyBtn').addEventListener('click', openSurvey);
+document.getElementById('surveyBackdrop').addEventListener('click', closeSurvey);
+document.getElementById('surveyClose').addEventListener('click', closeSurvey);
+document.getElementById('surveyOpenNew').addEventListener('click', ()=> window.open(SURVEY_URL,'_blank','noopener'));
+window.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && surveyRoot.classList.contains('open')) closeSurvey(); });
 </script>
 </body>
 </html>
