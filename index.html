@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<title>정원박람회 치유 코스 · 미니</title>
+<title>AI 맞춤 정원치유 코스 · 미니</title>
 
 <!-- 세련된 한글 폰트 -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"/>
@@ -11,12 +11,15 @@
 <style>
   :root{
     --ink:#0f172a; --muted:#64748b; --pri:#2563eb; --panel:#fff;
-    --toggle-bottom:80px; /* Matterport 버튼과 겹치면 숫자만 더 올리세요 */
+    --toggle-bottom:80px;   /* Matterport 버튼과 겹치면 숫자만 올리세요 */
+    --btn-h:44px;           /* 네 개 버튼 높이 통일 */
   }
   *{box-sizing:border-box}
-  html,body{margin:0;background:transparent;
+  html,body{
+    margin:0;background:transparent;
     font-family:"Pretendard Variable","Pretendard","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
-    color:var(--ink); letter-spacing:-0.3px;}
+    color:var(--ink); letter-spacing:-0.3px;
+  }
 
   /* 토글 버튼 */
   .toggle{
@@ -28,18 +31,17 @@
   .toggle.off{opacity:.9;background:#3b82f6}
   .toggle:focus{outline:3px solid #bfdbfe;outline-offset:2px}
 
-  /* 패널 */
+  /* 카드 */
   .panel{position:relative; z-index:10000}
   .wrap{max-width:440px; margin:0 auto; padding:12px}
   .card{background:var(--panel); border-radius:14px; box-shadow:0 6px 18px rgba(2,6,23,.10); padding:14px}
   .row{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
-  .btn{background:var(--pri); color:#fff; border:0; border-radius:10px; padding:10px 12px; font-weight:800; cursor:pointer}
-  .ghost{background:#eef2ff; color:#2b46e3}
   .muted{color:var(--muted); font-size:12px}
   label{display:flex; justify-content:space-between; align-items:center; font-size:13px; margin-top:6px; font-weight:700}
   .val{font-weight:900}
   h1{font-size:16px; margin:0; letter-spacing:-0.4px}
 
+  /* 코스 카드 */
   .grid{display:grid; grid-template-columns:1fr; gap:10px; margin-top:8px}
   @media (min-width:420px){ .grid{grid-template-columns:1fr 1fr} }
   .course{border:1px solid #e5e7eb; border-radius:12px; padding:10px}
@@ -48,6 +50,15 @@
   .bar{height:6px; background:linear-gradient(90deg,#22c55e,#16a34a); width:0; border-radius:999px}
   .gauge{height:6px; background:#e5e7eb; border-radius:999px; overflow:hidden}
   .top3{margin-top:10px}
+
+  /* 네 개 버튼 동일 규격 */
+  .btn{background:var(--pri); color:#fff; border:0; border-radius:10px;
+       padding:0 14px; height:var(--btn-h);
+       display:flex; align-items:center; justify-content:center;
+       font-weight:800; cursor:pointer}
+  .ghost{background:#eef2ff; color:#2b46e3}
+  .btn-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px}
+  @media (max-width:420px){ .btn-grid{grid-template-columns:1fr} }
 
   /* 접힘 상태 */
   .collapsed .panel{display:none}
@@ -58,7 +69,8 @@
   .backdrop{position:absolute; inset:0; background:rgba(15,23,42,.45); backdrop-filter:saturate(120%) blur(2px);}
   .modal{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
          width:min(92vw,480px); height:min(86vh,760px);
-         background:#fff; border-radius:16px; box-shadow:0 20px 50px rgba(2,6,23,.35); display:flex; flex-direction:column; overflow:hidden;}
+         background:#fff; border-radius:16px; box-shadow:0 20px 50px rgba(2,6,23,.35);
+         display:flex; flex-direction:column; overflow:hidden;}
   .modal-head{display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid #eef2ff; font-weight:900}
   .modal-head .title{font-size:14px}
   .modal-head .close{background:#eef2ff; color:#334155; border:0; border-radius:10px; padding:6px 10px; font-weight:800; cursor:pointer}
@@ -78,9 +90,9 @@
     <div class="card">
       <div style="display:flex;align-items:center;gap:8px">
         <span style="font-size:11px;color:#fff;background:#2563eb;border-radius:999px;padding:3px 8px">2025 서울국제정원박람회</span>
-        <h1>폐루프 치유 코스</h1>
+        <h1>AI 맞춤 정원치유 코스</h1>
       </div>
-      <div class="muted">사전값 → 코스 시작(메인 VR 이동) → 종료/리포트까지 한 번에.</div>
+      <div class="muted">기분·스트레스 지표 + 선호 태그 기반, 추천 3코스 바로 실행</div>
 
       <!-- 사전 입력 -->
       <label>현재 기분(VAS) <span class="val" id="moodVal">5</span>/10</label>
@@ -99,27 +111,23 @@
         <label style="font-weight:600;font-size:12px"><input type="checkbox" class="pref" value="전망"> 전망</label>
       </div>
 
-      <div class="row">
+      <!-- 2×2 동일 규격 버튼 -->
+      <div class="btn-grid">
         <button class="btn" id="recBtn">추천 3개 보기</button>
         <button class="btn ghost" id="allBtn">모든 코스 보기</button>
+        <button class="btn ghost" id="surveyBtn" title="네이버 설문 팝업">설문 참여</button>
+        <button class="btn ghost" id="endBtn" title="체험 후 클릭">종료/리포트</button>
       </div>
+      <div id="status" class="muted" style="display:none; margin-top:6px"></div>
 
-      <!-- 추천 Top3 -->
+      <!-- 추천/전체 리스트 -->
       <div id="top3" class="top3" style="display:none">
-        <h3 style="margin:6px 0 6px 0;font-size:15px">추천 코스 Top 3</h3>
+        <h3 style="margin:10px 0 6px 0;font-size:15px">추천 코스 Top 3</h3>
         <div id="topGrid" class="grid"></div>
       </div>
-
-      <!-- 전체 코스 -->
       <div id="all" style="display:none">
         <h3 style="margin:10px 0 6px 0;font-size:15px">전체 코스</h3>
         <div id="allGrid" class="grid"></div>
-      </div>
-
-      <div class="row" style="margin-top:10px">
-        <button class="btn ghost" id="surveyBtn" title="네이버 설문 팝업">설문 참여</button>
-        <button class="btn ghost" id="endBtn" title="체험 후 클릭">종료/리포트</button>
-        <div id="status" class="muted" style="display:none"></div>
       </div>
 
       <form id="topForm" method="get" target="_top" style="display:none"></form>
@@ -127,7 +135,7 @@
   </div>
 </div>
 
-<!-- ===== 설문 모달 구조 ===== -->
+<!-- ===== 설문 모달 ===== -->
 <div id="surveyRoot" class="modal-root" aria-hidden="true" role="dialog" aria-modal="true">
   <div class="backdrop" id="surveyBackdrop"></div>
   <div class="modal" role="document">
@@ -166,7 +174,7 @@ function setOpen(open){
 TOGGLE.addEventListener('click', ()=> setOpen(TOGGLE.textContent!=='ON'));
 window.addEventListener('keydown', e=>{ if(e.key.toLowerCase()==='t') setOpen(TOGGLE.textContent!=='ON'); });
 
-/* ===== 치유 코스 정의/기능 ===== */
+/* ===== 코스 정의/로직 ===== */
 const DL=[
  "https://my.mpskin.com/tour/38ca3651j?play=1&sr=,-.01&ss=217",
  "https://my.mpskin.com/tour/38ca3651j?play=1&sr=-3.12,.58&ss=226",
@@ -259,23 +267,18 @@ document.getElementById('recBtn').addEventListener('click', recommendTop3);
 document.getElementById('allBtn').addEventListener('click', showAll);
 document.getElementById('endBtn').addEventListener('click', endReport);
 
-/* ===== 설문 모달 제어 =====
-   SURVEY_URL 에 네이버 폼 주소만 넣으시면 됩니다.
-   (임베드 차단 시 안내문 + 새 창 열기 버튼 제공) */
-const SURVEY_URL = "https://naver.me/여기에_설문_URL_붙여넣기";  // <<<<<<<<<<<<<<<< 수정
+/* ===== 설문 모달 제어 ===== */
+const SURVEY_URL = "https://naver.me/57QTs9oa";  // 네이버 폼 URL
 const surveyRoot = document.getElementById('surveyRoot');
 const surveyFrame = document.getElementById('surveyFrame');
 const surveyHint = document.getElementById('surveyHint');
 
 function openSurvey(){
   surveyHint.style.display='none';
-  surveyFrame.removeAttribute('src'); // 초기화
+  surveyFrame.removeAttribute('src');
   surveyRoot.classList.add('open');
-  // 임베드 시도
-  surveyFrame.src = SURVEY_URL;
-
-  // 임베드 차단 대응: 1.5초 후에도 렌더가 안 느껴지면 안내 노출
-  setTimeout(()=>{ surveyHint.style.display='block'; },1500);
+  surveyFrame.src = SURVEY_URL;           // 임베드 시도
+  setTimeout(()=>{ surveyHint.style.display='block'; },1500); // 차단 시 안내
 }
 function closeSurvey(){
   surveyRoot.classList.remove('open');
