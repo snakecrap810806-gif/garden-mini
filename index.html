@@ -45,7 +45,7 @@
   /* 패널 접힘 */
   .panel.collapsed{display:none}
 
-  /* 내부 토글(프레임 안에서 항상 보임) — 외부에서 hideToggle=1이면 숨김 처리됨 */
+  /* 내부 토글(필요 시 숨김) */
   .toggle{
     position:fixed; right:14px; bottom:14px;
     z-index:10001; background:#2563eb; color:#fff; border:0; border-radius:999px;
@@ -157,11 +157,11 @@ const COURSES=[
 ];
 const SURVEY_URL="https://naver.me/57QTs9oa";
 
-/* ===== 값 표시 ===== */
+/* 값 표시 */
 function renderVals(){ $('moodVal').textContent=$('mood').value; $('stressVal').textContent=$('stress').value; }
 $('mood').addEventListener('input',renderVals); $('stress').addEventListener('input',renderVals); renderVals();
 
-/* ===== 추천 ===== */
+/* 추천 */
 const prefs=()=> new Set([...document.querySelectorAll('.pref:checked')].map(i=>i.value));
 function score(course, ps, mood, stress){
   let s=0; course.tags.forEach(t=>{ if(ps.has(t)) s+=0.5; });
@@ -189,7 +189,7 @@ function showAll(){ $('allGrid').innerHTML=''; COURSES.forEach(c=> $('allGrid').
 document.getElementById('recBtn').addEventListener('click', recommendTop3);
 document.getElementById('allBtn').addEventListener('click', showAll);
 
-/* ===== 메인 VR로 이동 ===== */
+/* 메인 VR로 이동 */
 function toTop(url){
   try{ window.top.location.href=url; return; }catch(e){}
   try{ window.top.location.assign(url); return; }catch(e){}
@@ -205,7 +205,7 @@ function start(baseUrl){
   toTop(url);
 }
 
-/* ===== 종료/리포트(샘플) ===== */
+/* 종료/리포트(샘플) */
 document.getElementById('endBtn').addEventListener('click', async()=>{
   if(!SESSION){ alert('먼저 코스를 시작하세요.'); return; }
   const final=prompt('체험 종료 스트레스(VAS) (0~10)', '4'); if(final===null) return;
@@ -214,14 +214,14 @@ document.getElementById('endBtn').addEventListener('click', async()=>{
   $('status').style.display='block'; $('status').textContent=msg;
 });
 
-/* ===== 설문 모달 ===== */
+/* 설문 모달 */
 const surveyRoot=$('surveyRoot'), surveyFrame=$('surveyFrame');
-$('surveyBtn').addEventListener('click', ()=>{ surveyRoot.classList.add('open'); surveyFrame.src=SURVEY_URL; });
+$('surveyBtn').addEventListener('click', ()=>{ surveyRoot.classList.add('open'); surveyFrame.src= "https://naver.me/57QTs9oa"; });
 $('surveyBackdrop').addEventListener('click', ()=>{ surveyRoot.classList.remove('open'); surveyFrame.removeAttribute('src'); });
 $('surveyClose').addEventListener('click', ()=>{ surveyRoot.classList.remove('open'); surveyFrame.removeAttribute('src'); });
-$('surveyOpenNew').addEventListener('click', ()=> window.open(SURVEY_URL,'_blank','noopener'));
+$('surveyOpenNew').addEventListener('click', ()=> window.open("https://naver.me/57QTs9oa",'_blank','noopener'));
 
-/* ===== 내부 토글 + 부모에게 상태 알림 ===== */
+/* 내부 토글 */
 const TOGGLE=$('toggle'), PANEL=$('panel');
 function setOpen(open){
   PANEL.classList.toggle('collapsed', !open);
@@ -230,30 +230,25 @@ function setOpen(open){
   TOGGLE.classList.toggle('off', !open);
   TOGGLE.setAttribute('aria-pressed', String(open));
   try{ localStorage.setItem('mini_open', open?'1':'0'); }catch(e){}
-  try{ window.parent.postMessage({ type:'garden-mini-open', open }, '*'); }catch(e){}
 }
 (function init(){
   let open=true; try{ const s=localStorage.getItem('mini_open'); if(s==='0') open=false; }catch(e){}
   setOpen(open);
-  try{ window.parent.postMessage({ type:'garden-mini-ready', open }, '*'); }catch(e){}
 })();
 TOGGLE.addEventListener('click', ()=> setOpen(TOGGLE.textContent!=='ON'));
 window.addEventListener('keydown', e=>{ if(e.key.toLowerCase()==='t') setOpen(TOGGLE.textContent!=='ON'); });
 </script>
 
-<!-- ▼▼▼ 내부 토글 숨김 옵션(요청하신 7줄) — 반드시 body 닫기 전에 넣어주세요 ▼▼▼ -->
+<!-- 내부 토글 숨김 옵션 (hideToggle=1 또는 transparent=1) -->
 <script>
-  // URL에 hideToggle=1 또는 transparent=1 이 있으면 내부 토글 버튼(.toggle) 숨김
-  (function(){
-    var q=new URLSearchParams(location.search);
-    if(q.get('hideToggle')==='1' || q.get('transparent')==='1' || q.has('hideToggle')){
-      var st=document.createElement('style');
-      st.textContent='.toggle{display:none !important}';
-      document.head.appendChild(st);
-    }
-  })();
+(function(){
+  var q=new URLSearchParams(location.search);
+  if(q.get('hideToggle')==='1' || q.get('transparent')==='1' || q.has('hideToggle')){
+    var st=document.createElement('style');
+    st.textContent='.toggle{display:none !important}';
+    document.head.appendChild(st);
+  }
+})();
 </script>
-<!-- ▲▲▲ 내부 토글 숨김 옵션 끝 ▲▲▲ -->
-
 </body>
 </html>
