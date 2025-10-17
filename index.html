@@ -7,24 +7,33 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"/>
 <style>
   :root{ --ink:#0f172a; --muted:#64748b; --pri:#2563eb; --panel:#fff; --btn-h:44px; }
-  *{box-sizing:border-box} html,body{margin:0;background:transparent;color:var(--ink);
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;background:transparent;color:var(--ink);
     font-family:"Pretendard Variable","Pretendard","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
-    letter-spacing:-0.3px;}
+    letter-spacing:-0.3px;
+  }
+
   .wrap{max-width:440px;margin:0 auto;padding:12px}
   .card{background:#fff;border-radius:14px;box-shadow:0 6px 18px rgba(2,6,23,.10);padding:14px}
+
+  /* 헤더: 배지 + 타이틀(한 줄 고정) */
   .head{display:flex;align-items:center;gap:8px;min-width:0}
   .badge{font-size:11px;color:#fff;background:#2563eb;border-radius:999px;padding:3px 8px;white-space:nowrap;flex:0 0 auto}
   .title{margin:0;font-size:16px;letter-spacing:-0.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1 1 auto}
   @media (max-width:640px){ .badge{font-size:10px;padding:2px 7px} .title{font-size:15px} }
+
   .muted{color:var(--muted);font-size:12px}
   label{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-top:6px;font-weight:700}
   .val{font-weight:900}
   .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+
   .btn{background:var(--pri);color:#fff;border:0;border-radius:10px;padding:0 14px;height:var(--btn-h);
        display:flex;align-items:center;justify-content:center;font-weight:800;cursor:pointer}
   .ghost{background:#eef2ff;color:#2b46e3}
   .btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
   @media (max-width:420px){ .btn-grid{grid-template-columns:1fr} }
+
   .top3{margin-top:10px}
   .grid{display:grid;grid-template-columns:1fr;gap:10px}
   @media (min-width:420px){ .grid{grid-template-columns:1fr 1fr} }
@@ -33,11 +42,20 @@
   .pill{display:inline-block;font-size:11px;background:#eef2ff;border-radius:999px;padding:4px 8px;margin-right:6px;margin-top:4px}
   .gauge{height:6px;background:#e5e7eb;border-radius:999px;overflow:hidden}
   .bar{height:6px;background:linear-gradient(90deg,#22c55e,#16a34a);width:0;border-radius:999px}
+
+  /* 패널 접힘 */
   .panel.collapsed{display:none}
-  /* 토글(ON/OFF) 버튼 */
-  .toggle{position:fixed;right:14px;bottom:80px;z-index:10001;background:#2563eb;color:#fff;border:0;border-radius:999px;
-          padding:10px 16px;font-weight:900;cursor:pointer;box-shadow:0 8px 20px rgba(37,99,235,.35)}
+
+  /* 내부 토글(프레임 안에서 항상 보임) */
+  .toggle{
+    position:fixed; right:14px; bottom:14px;   /* 접힘 때도 프레임 안에서 보이게 낮춤 */
+    z-index:10001; background:#2563eb; color:#fff; border:0; border-radius:999px;
+    padding:10px 16px; font-weight:900; cursor:pointer; box-shadow:0 8px 20px rgba(37,99,235,.35)
+  }
   .toggle.off{opacity:.9;background:#3b82f6}
+  /* 접힘 상태에선 토글 더 아래로 붙이기 (작은 프레임에서도 보이도록) */
+  body.collapsed .toggle{ bottom:6px; right:6px; }
+
   /* 설문 모달 */
   .modal-root{position:fixed;inset:0;display:none;z-index:10002}
   .modal-root.open{display:block}
@@ -53,7 +71,7 @@
 </head>
 <body>
 
-<button id="toggle" class="toggle" aria-pressed="true" title="미니맵 보이기/숨기기 (T)">ON</button>
+<button id="toggle" class="toggle" aria-pressed="true" title="보이기/숨기기 (T)">ON</button>
 
 <div id="panel" class="panel">
   <div class="wrap"><div class="card">
@@ -189,14 +207,13 @@ function start(baseUrl){
   toTop(url);
 }
 
-/* ===== 종료/리포트 ===== */
+/* ===== 종료/리포트(샘플) ===== */
 document.getElementById('endBtn').addEventListener('click', async()=>{
   if(!SESSION){ alert('먼저 코스를 시작하세요.'); return; }
   const final=prompt('체험 종료 스트레스(VAS) (0~10)', '4'); if(final===null) return;
   SESSION.endTs=Date.now(); SESSION.finalStress=Number(final);
-  const payload={session:SESSION.id, baseline:SESSION.baseline, finalStress:SESSION.finalStress,
-                 durationMin:Math.round((SESSION.endTs-SESSION.startTs)/60000), ts:new Date().toISOString()};
-  $('status').style.display='block'; $('status').textContent='리포트 전송(샘플)… 완료';
+  const msg=`리포트(샘플)\n세션:${SESSION.id}\n사전:${SESSION.baseline.stress} → 사후:${SESSION.finalStress}`;
+  $('status').style.display='block'; $('status').textContent=msg;
 });
 
 /* ===== 설문 모달 ===== */
@@ -206,21 +223,21 @@ $('surveyBackdrop').addEventListener('click', ()=>{ surveyRoot.classList.remove(
 $('surveyClose').addEventListener('click', ()=>{ surveyRoot.classList.remove('open'); surveyFrame.removeAttribute('src'); });
 $('surveyOpenNew').addEventListener('click', ()=> window.open(SURVEY_URL,'_blank','noopener'));
 
-/* ===== ON/OFF 토글 + 부모에 신호(postMessage) ===== */
+/* ===== 내부 토글 + 부모에게 상태 알림 ===== */
 const TOGGLE=$('toggle'), PANEL=$('panel');
 function setOpen(open){
   PANEL.classList.toggle('collapsed', !open);
+  document.body.classList.toggle('collapsed', !open);  // 접힘 상태일 때 토글 위치 보정용
   TOGGLE.textContent = open ? 'ON' : 'OFF';
   TOGGLE.classList.toggle('off', !open);
   TOGGLE.setAttribute('aria-pressed', String(open));
   try{ localStorage.setItem('mini_open', open?'1':'0'); }catch(e){}
-  /* 부모(MP SKIN)에게 상태 전달 → 부모가 iframe을 실제로 켜고/끔 */
+  /* 부모(MP SKIN)에 알려서 프레임 크기를 동기화 */
   try{ window.parent.postMessage({ type:'garden-mini-open', open }, '*'); }catch(e){}
 }
 (function init(){
   let open=true; try{ const s=localStorage.getItem('mini_open'); if(s==='0') open=false; }catch(e){}
   setOpen(open);
-  /* 최초 상태도 부모에 통지 */
   try{ window.parent.postMessage({ type:'garden-mini-ready', open }, '*'); }catch(e){}
 })();
 TOGGLE.addEventListener('click', ()=> setOpen(TOGGLE.textContent!=='ON'));
