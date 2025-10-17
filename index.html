@@ -6,7 +6,7 @@
 <title>AI 맞춤 정원치유 코스 · 미니</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"/>
 <style>
-  :root{ --ink:#0f172a; --muted:#64748b; --pri:#2563eb; --panel:#fff; --btn-h:44px; }
+  :root{ --ink:#0f172a; --muted:#64748b; --pri:#2563eb; --btn-h:44px; }
   *{box-sizing:border-box}
   html,body{
     margin:0;background:transparent;color:var(--ink);
@@ -17,7 +17,6 @@
   .wrap{max-width:440px;margin:0 auto;padding:12px}
   .card{background:#fff;border-radius:14px;box-shadow:0 6px 18px rgba(2,6,23,.10);padding:14px}
 
-  /* 헤더: 배지 + 타이틀(한 줄 고정) */
   .head{display:flex;align-items:center;gap:8px;min-width:0}
   .badge{font-size:11px;color:#fff;background:#2563eb;border-radius:999px;padding:3px 8px;white-space:nowrap;flex:0 0 auto}
   .title{margin:0;font-size:16px;letter-spacing:-0.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1 1 auto}
@@ -48,12 +47,11 @@
 
   /* 내부 토글(프레임 안에서 항상 보임) */
   .toggle{
-    position:fixed; right:14px; bottom:14px;   /* 접힘 때도 프레임 안에서 보이게 낮춤 */
+    position:fixed; right:14px; bottom:14px;
     z-index:10001; background:#2563eb; color:#fff; border:0; border-radius:999px;
     padding:10px 16px; font-weight:900; cursor:pointer; box-shadow:0 8px 20px rgba(37,99,235,.35)
   }
   .toggle.off{opacity:.9;background:#3b82f6}
-  /* 접힘 상태에선 토글 더 아래로 붙이기 (작은 프레임에서도 보이도록) */
   body.collapsed .toggle{ bottom:6px; right:6px; }
 
   /* 설문 모달 */
@@ -165,83 +163,4 @@ $('mood').addEventListener('input',renderVals); $('stress').addEventListener('in
 
 /* ===== 추천 ===== */
 const prefs=()=> new Set([...document.querySelectorAll('.pref:checked')].map(i=>i.value));
-function score(course, ps, mood, stress){
-  let s=0; course.tags.forEach(t=>{ if(ps.has(t)) s+=0.5; });
-  if(stress>=7 && (course.tags.includes('조용함')||course.tags.includes('명상'))) s+=0.2;
-  if(mood<=3 && (course.tags.includes('조용함')||course.tags.includes('명상'))) s+=0.1;
-  return s;
-}
-function mkCourseCard(c, pct){
-  const div=document.createElement('div'); div.className='course';
-  div.innerHTML=`<h4>${c.title}</h4>
-    <div class="gauge"><div class="bar" style="width:${pct||0}%"></div></div>
-    <div class="muted">${c.desc}</div>
-    <div style="margin:6px 0"><span class="pill">약 ${c.dur}</span><span class="pill">${c.steps}</span>${c.tags.map(t=>`<span class="pill">${t}</span>`).join(' ')}</div>
-    <button class="btn" data-link="${c.link}">시작하기</button>`;
-  div.querySelector('button').addEventListener('click', ()=> start(c.link));
-  return div;
-}
-function recommendTop3(){
-  const m=+$('mood').value, s=+$('stress').value, ps=prefs();
-  const list=COURSES.map(c=>({c,v:score(c,ps,m,s)})).sort((a,b)=>b.v-a.v).slice(0,3);
-  $('topGrid').innerHTML=''; list.forEach(({c,v})=> $('topGrid').appendChild(mkCourseCard(c,Math.round((v+0.6)*100))));
-  $('top3').style.display='block'; $('all').style.display='none';
-}
-function showAll(){ $('allGrid').innerHTML=''; COURSES.forEach(c=> $('allGrid').appendChild(mkCourseCard(c,0))); $('all').style.display='block'; $('top3').style.display='none'; }
-document.getElementById('recBtn').addEventListener('click', recommendTop3);
-document.getElementById('allBtn').addEventListener('click', showAll);
-
-/* ===== 메인 VR로 이동 ===== */
-function toTop(url){
-  try{ window.top.location.href=url; return; }catch(e){}
-  try{ window.top.location.assign(url); return; }catch(e){}
-  const u=new URL(url), f=$('topForm'); f.action=u.origin+u.pathname; f.innerHTML='';
-  u.searchParams.forEach((v,k)=>{ const i=document.createElement('input'); i.type='hidden'; i.name=k; i.value=v; f.appendChild(i); });
-  f.submit();
-}
-let SESSION=null;
-function uuid(){ return 's'+Math.random().toString(16).slice(2)+Date.now().toString(36); }
-function start(baseUrl){
-  if(!SESSION){ SESSION={ id:uuid(), baseline:{mood:+$('mood').value, stress:+$('stress').value}, startTs:Date.now() }; }
-  const url=`${baseUrl}&session=${SESSION.id}&mood=${SESSION.baseline.mood}&stress=${SESSION.baseline.stress}`;
-  toTop(url);
-}
-
-/* ===== 종료/리포트(샘플) ===== */
-document.getElementById('endBtn').addEventListener('click', async()=>{
-  if(!SESSION){ alert('먼저 코스를 시작하세요.'); return; }
-  const final=prompt('체험 종료 스트레스(VAS) (0~10)', '4'); if(final===null) return;
-  SESSION.endTs=Date.now(); SESSION.finalStress=Number(final);
-  const msg=`리포트(샘플)\n세션:${SESSION.id}\n사전:${SESSION.baseline.stress} → 사후:${SESSION.finalStress}`;
-  $('status').style.display='block'; $('status').textContent=msg;
-});
-
-/* ===== 설문 모달 ===== */
-const surveyRoot=$('surveyRoot'), surveyFrame=$('surveyFrame');
-$('surveyBtn').addEventListener('click', ()=>{ surveyRoot.classList.add('open'); surveyFrame.src=SURVEY_URL; });
-$('surveyBackdrop').addEventListener('click', ()=>{ surveyRoot.classList.remove('open'); surveyFrame.removeAttribute('src'); });
-$('surveyClose').addEventListener('click', ()=>{ surveyRoot.classList.remove('open'); surveyFrame.removeAttribute('src'); });
-$('surveyOpenNew').addEventListener('click', ()=> window.open(SURVEY_URL,'_blank','noopener'));
-
-/* ===== 내부 토글 + 부모에게 상태 알림 ===== */
-const TOGGLE=$('toggle'), PANEL=$('panel');
-function setOpen(open){
-  PANEL.classList.toggle('collapsed', !open);
-  document.body.classList.toggle('collapsed', !open);  // 접힘 상태일 때 토글 위치 보정용
-  TOGGLE.textContent = open ? 'ON' : 'OFF';
-  TOGGLE.classList.toggle('off', !open);
-  TOGGLE.setAttribute('aria-pressed', String(open));
-  try{ localStorage.setItem('mini_open', open?'1':'0'); }catch(e){}
-  /* 부모(MP SKIN)에 알려서 프레임 크기를 동기화 */
-  try{ window.parent.postMessage({ type:'garden-mini-open', open }, '*'); }catch(e){}
-}
-(function init(){
-  let open=true; try{ const s=localStorage.getItem('mini_open'); if(s==='0') open=false; }catch(e){}
-  setOpen(open);
-  try{ window.parent.postMessage({ type:'garden-mini-ready', open }, '*'); }catch(e){}
-})();
-TOGGLE.addEventListener('click', ()=> setOpen(TOGGLE.textContent!=='ON'));
-window.addEventListener('keydown', e=>{ if(e.key.toLowerCase()==='t') setOpen(TOGGLE.textContent!=='ON'); });
-</script>
-</body>
-</html>
+function score(course
